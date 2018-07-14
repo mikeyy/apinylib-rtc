@@ -1,10 +1,8 @@
 import logging
-import sys
 import asyncio
 import pinylib
 
 log = logging.getLogger(__name__)
-
 
 def main():
     room_name = input('Enter room name: ').strip()
@@ -36,7 +34,7 @@ def main():
             else:
                 is_logged_in = client.login()
         if is_logged_in:
-            client.console_write(pinylib.COLOR['bright_green'], f'Logged in as: {client.account}')
+            print('Logged in as: ' + client.account)
         if not do_login:
             client.account = None
             client.password = None
@@ -47,47 +45,6 @@ def main():
     while not client.is_connected:
         asyncio.sleep(1)
     # TODO input... :(
-    '''
-    while client.is_connected:
-        chat_msg = input()
-        if chat_msg.startswith('/'):
-            msg_parts = chat_msg.split(' ')
-            cmd = msg_parts[0].lower().strip()
-            if cmd == '/q':
-                client.disconnect()
-            elif cmd == '/a':
-                if len(client.users.signed_in) == 0:
-                    print ('No signed in users in the room.')
-                else:
-                    for user in client.users.signed_in:
-                        print ('%s:%s' % (user.nick, user.account))
-            elif cmd == '/u':
-                for user in client.users.all:
-                    print ('%s: %s' % (client.users.all[user].nick, client.users.all[user].user_level))
-            elif cmd == '/m':
-                if len(client.users.mods) == 0:
-                    print ('No moderators in the room.')
-                else:
-                    for mod in client.users.mods:
-                        print (mod.nick)
-            elif cmd == '/n':
-                if len(client.users.norms) == 0:
-                    print ('No normal users in the room.')
-                else:
-                    for norm in client.users.norms:
-                        print (norm.nick)
-            elif cmd == '/l':
-                if len(client.users.lurkers) == 0:
-                    print ('No lurkers in the room.')
-                else:
-                    for lurker in client.users.lurkers:
-                        print (lurker.nick)
-            elif cmd == '/p':
-                if len(msg_parts) >= 2:
-                    bot.send_room_password_msg(msg_parts[1])
-        else:
-            client.send_chat_msg(chat_msg)
-        '''
 
 
 if __name__ == '__main__':
@@ -98,9 +55,5 @@ if __name__ == '__main__':
         log.info('Starting pinylib webrtc version: %s' % pinylib.__version__)
     else:
         log.addHandler(logging.NullHandler())
-    # TODO this sucks, ew
-    if sys.version_info[:2] != (3,6):
-        print(f'apinylib requires Python 3.6.5+, you are using {sys.version}\nEXITING')
-        sys.exit()
-    else:
-        main()
+    main()
+
