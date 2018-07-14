@@ -44,7 +44,7 @@ and need to be reimplemented.
 * `https://tinychat.com/api/tcinfo?username=`?
 
 ### Requirements
-* Python 3.6.5(+?)
+* Python 3.6.5+
 * [websockets](https://github.com/aaugustin/websockets)
 * [requests](https://github.com/kennethreitz/requests)
 * [colorama](https://github.com/tartley/colorama)
