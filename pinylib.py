@@ -13,7 +13,7 @@ from page import acc
 from util import string_util
 
 # Attempt to follow https://semver.org/
-__version__ = '0.2.0'
+__version__ = '0.2.2'
 
 CONFIG = config
 init(autoreset=True)
@@ -342,14 +342,12 @@ class TinychatRTCClient(object):
         """
         _user = self.users.add(join_info)
         if _user.account:
-            # TODO think this is broken or something
-            '''
             tc_info = apis.tinychat.user_info(_user.account)
 
             if tc_info is not None:
                 _user.tinychat_id = tc_info['tinychat_id']
                 _user.last_login = tc_info['last_active']
-            '''
+
             if _user.is_owner:
                 _user.user_level = 1
                 self.console_write(COLOR['red'],

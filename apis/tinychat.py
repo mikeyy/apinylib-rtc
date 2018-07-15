@@ -5,13 +5,13 @@ import util.web
 def rtc_version(room):
     """
     Parse the current tinychat RTC version.
-    
+
     :param room: This could be a static room name, since we just need the html of any room.
     :type room: str
     :return: The current tinychat rtc version, or None on parse failure.
     :rtype: str | None
     """
-    _url = 'https://tinychat.com/room/{0}'.format(room)
+    _url = f'https://tinychat.com/room/{room}'
     response = util.web.http_get(url=_url)
 
     if response['content'] is not None:
@@ -28,7 +28,7 @@ def get_connect_info(room):
     :return: JSON {'result': 'token', 'endpoint': 'wss://address'} or None on failure to fetch token.
     :rtype: str | None
     """
-    _url = 'https://tinychat.com/api/v1.0/room/token/{0}'.format(room)
+    _url = f'https://tinychat.com/api/v1.0/room/token/{room}'
 
     response = util.web.http_get(url=_url, json=True)
     if response['json'] is not None:
@@ -42,7 +42,7 @@ def user_info(tc_account):
     :param tc_account: str the account name.
     :return: dict {'username', 'tinychat_id', 'last_active', 'name', 'location', 'biography'} or None on error.
     """
-    url = 'https://tinychat.com/api/tcinfo?username=%s' % tc_account
+    url = f'https://tinychat.com/api/v1.0/profile?username={tc_account}'
     response = util.web.http_get(url=url, json=True)
     if response['json'] is not None:
         if 'error' not in response['json']:
@@ -66,7 +66,7 @@ def user_info(tc_account):
 
 
 def spy_info(room):
-    """ 
+    """
     Finds info for a given room name.
 
     The info shows how many mods, broadcasters and total users(list)
@@ -74,7 +74,7 @@ def spy_info(room):
     :param room: str the room name to get spy info for.
     :return: dict{'mod_count', 'broadcaster_count', 'total_count', list('users')} or {'error'}.
     """
-    url = 'https://api.tinychat.com/%s.json' % room
+    url = f'https://api.tinychat.com/{room}.json'
     response = util.web.http_get(url, json=True)
     if response['json'] is not None:
         if 'error' not in response['json']:
