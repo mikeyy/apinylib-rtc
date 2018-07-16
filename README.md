@@ -41,7 +41,6 @@ and need to be reimplemented.
 * Disconnect probably doesn't work :D
 * Reconnect is not implemented
 * No idea how external requests are effecting the event loop (probably not well)
-* `https://tinychat.com/api/tcinfo?username=`?
 
 ### Requirements
 * Python 3.6.5+
