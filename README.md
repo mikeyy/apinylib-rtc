@@ -2,7 +2,7 @@
 
 WebRTC module for tinychat chat rooms.
 
-This is fork of [pinylib-rtc](https://github.com/nortxort/pinylib-rtc/)
+This is a fork of [pinylib-rtc](https://github.com/nortxort/pinylib-rtc/)
 using [a library](https://github.com/aaugustin/websockets) developed *on top of* 
 [asyncio](https://docs.python.org/3.6/library/asyncio.html); Python's asynchronous framework.
 
