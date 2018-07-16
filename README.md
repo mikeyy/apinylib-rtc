@@ -41,6 +41,7 @@ and need to be reimplemented.
 * Disconnect probably doesn't work :D
 * Reconnect is not implemented
 * No idea how external requests are effecting the event loop (probably not well)
+* `console_write()` is blocking
 
 ### Requirements
 * Python 3.6.5+
