@@ -55,6 +55,9 @@ class Handler(EventHandler):
     async def banlistmsg(self, client, var):
         await client.on_banlist(var)
     
+    async def msg(self, client, var):
+        await client.on_msg(var['handle'], var['text'])
+
     async def pvtmsg(self, client, var):
         await client.on_pvtmsg(var['handle'], var['text']) 
    
