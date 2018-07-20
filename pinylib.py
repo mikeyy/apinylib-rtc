@@ -9,6 +9,8 @@ import config
 
 import apis.tinychat
 import user
+import handler
+
 from page import acc
 from util import string_util
 
@@ -46,7 +48,8 @@ class TinychatRTCClient(object):
         self.is_client_mod = False
         self.is_client_owner = False
         self._init_time = time.time()
-
+        
+        self.handler = handler.Handler()
         self.is_green_room = False
         self.is_connected = False
         self.active_user = None
@@ -145,102 +148,7 @@ class TinychatRTCClient(object):
                 json_data = json.loads(data)
                 log.debug(f'DATA: {data}')
                 event = json_data['tc']
-                if event == 'ping':
-                    # just pong immediately, no real need to handle this event.
-                    await self.send({'tc': 'pong'})
-
-                elif event == 'closed':
-                    await self.on_closed(json_data['error'])
-
-                elif event == 'joined':
-                    await self.on_joined(json_data['self'])
-                    await self.on_room_info(json_data['room'])
-
-                elif event == 'room_settings':
-                    await self.on_room_settings(json_data['room'])
-
-                elif event == 'userlist':
-                    for _user in json_data['users']:
-                        await self.on_userlist(_user)
-
-                elif event == 'join':
-                    await self.on_join(json_data)
-
-                elif event == 'nick':
-                    await self.on_nick(json_data['handle'], json_data['nick'])
-
-                elif event == 'quit':
-                    await self.on_quit(json_data['handle'])
-
-                elif event == 'ban':
-                    await self.on_ban(json_data)
-
-                elif event == 'unban':
-                    await self.on_unban(json_data)
-
-                elif event == 'banlist':
-                    await self.on_banlist(json_data)
-
-                elif event == 'msg':
-                    await self.on_msg(json_data['handle'], json_data['text'])
-
-                elif event == 'pvtmsg':
-                    await self.on_pvtmsg(json_data['handle'], json_data['text'])
-
-                elif event == 'publish':
-                    await self.on_publish(json_data['handle'])
-
-                elif event == 'unpublish':
-                    await self.on_unpublish(json_data['handle'])
-
-                elif event == 'sysmsg':
-                    await self.on_sysmsg(json_data['text'])
-
-                elif event == 'password':
-                    await self.on_password()
-
-                elif event == 'pending_moderation':
-                    await self.on_pending_moderation(json_data)
-
-                elif event == 'stream_moder_allow':
-                    await self.on_stream_moder_allow(json_data)
-
-                elif event == 'stream_moder_close':
-                    await self.on_stream_moder_close(json_data)
-
-                elif event == 'captcha':
-                    await self.on_captcha(json_data['key'])
-
-                elif event == 'yut_playlist':
-                    await self.on_yut_playlist(json_data)
-
-                elif event == 'yut_play':
-                    await self.on_yut_play(json_data)
-
-                elif event == 'yut_pause':
-                    await self.on_yut_pause(json_data)
-
-                elif event == 'yut_stop':
-                    await self.on_yut_stop(json_data)
-
-                elif event == 'iceservers':
-                    pass
-
-                elif event == 'stream_connected':
-                    pass
-
-                elif event == 'stream_closed':
-                    pass
-
-                elif event == 'sdp':
-                    pass
-
-                else:
-                    log.warning(f'Unknown Event: {event}, {json_data}')
-                    self.console_write(COLOR['bright_red'],
-                                       f'Unknown Event: {event}, {json_data}')
-                    if config.DEBUG_MODE:
-                        self.console_write(COLOR['white'], data)
+                await self.handler.fire(self, event, json_data)
 
     async def on_closed(self, code):
         """
