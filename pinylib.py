@@ -12,7 +12,7 @@ import user
 import handler
 
 from page import acc
-from util import string_util
+from util import string_util, captcha
 
 # Attempt to follow https://semver.org/
 __version__ = "0.2.2"
@@ -39,7 +39,13 @@ COLOR = {
 
 
 class TinychatRTCClient(object):
-    def __init__(self, room, nickname="", account=None, password=None):
+    def __init__(self,
+            room,
+            nickname="",
+            account=None,
+            password=None,
+            solve_captchas=False
+        ):
         self.room_name = room
         self.nickname = nickname
         self.account = account
@@ -59,7 +65,13 @@ class TinychatRTCClient(object):
         self._ws = None
         self._req = 1
         self.is_published = False
-
+        self.solve_captchas = solve_captchas
+        if solve_captchas:
+            if len(CONFIG.API_KEY) > 0:
+                self.captcha = captcha.AntiCaptcha(CONFIG.API_KEY)
+            else:
+                self.solve_captchas = False
+    
     def console_write(self, color, message):
         """
         Writes message to console.
@@ -110,7 +122,7 @@ class TinychatRTCClient(object):
             "Sec-WebSocket-Extensions": "permessage-deflate",
         }
         # TODO probably move this to its own function?
-        self.connect_info = apis.tinychat.get_connect_info(self.room_name)
+        self.connect_info = await apis.tinychat.get_connect_info(self.room_name)
         # TODO websockets debugging
         async with websockets.connect(
             self.connect_info["endpoint"],
@@ -125,10 +137,10 @@ class TinychatRTCClient(object):
 
     async def disconnect(self):
         self.is_connected = False
-        await self._ws.close(status=1001, reason="GoingAway")
+        await self._ws.close(reason="GoingAway")
         self._req = 1
         # TODO this works? don't think so
-        sockclosed = await self._ws.closed
+        sockclosed = self._ws.closed
         if sockclosed:
             self._ws = None
 
@@ -272,7 +284,7 @@ class TinychatRTCClient(object):
         """
         _user = self.users.add(join_info)
         if _user.account:
-            tc_info = apis.tinychat.user_info(_user.account)
+            tc_info = await apis.tinychat.user_info(_user.account)
 
             if tc_info is not None:
                 _user.tinychat_id = tc_info["tinychat_id"]
@@ -539,7 +551,31 @@ class TinychatRTCClient(object):
 
     async def on_captcha(self, key):
         log.debug(f"captcha key: {key}")
-        self.console_write(COLOR["bright_red"], "Captcha required!")
+        if self.solve_captchas:
+            try:
+                solution = await self.captcha.solve_captcha(key, pageurl)
+            except BaseException as e:
+                await self.console_write(
+                    COLOR["bright_yellow"], f"reCAPTCHA solving error: {e}"
+                )
+                await self.disconnect()
+            else:
+                if solution:
+                    await self.console_write(
+                        COLOR["bright_yellow"], "reCAPTCHA solution received"
+                    )
+                    await self.send_captcha(solution)
+                    await self.console_write(
+                        COLOR["bright_yellow"], "reCAPTCHA solution sent"
+                    )
+                else:
+                    await self.console_write(
+                        COLOR["bright_yellow"], "reCAPTCHA solving failure"
+                    )
+                    await self.disconnect()
+        else:
+            self.console_write(COLOR["bright_red"], "Captcha required!")
+            await self.disconnect()
 
     async def on_yut_playlist(self, playlist_data):  # TODO: Needs more work.
         """
@@ -631,7 +667,7 @@ class TinychatRTCClient(object):
         """
         if not self.nickname:
             self.nickname = string_util.create_random_string(3, 20)
-        rtc_version = apis.tinychat.rtc_version(self.room_name)
+        rtc_version = await apis.tinychat.rtc_version(self.room_name)
         log.info(f"tinychat rtc version: {rtc_version}")
         if rtc_version is None:
             rtc_version = config.FALLBACK_RTC_VERSION

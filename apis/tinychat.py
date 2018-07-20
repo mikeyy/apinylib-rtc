@@ -2,7 +2,7 @@ import time
 import util.web
 
 
-def rtc_version(room):
+async def rtc_version(room):
     """
     Parse the current tinychat RTC version.
 
@@ -12,7 +12,7 @@ def rtc_version(room):
     :rtype: str | None
     """
     _url = f"https://tinychat.com/room/{room}"
-    response = util.web.http_get(url=_url)
+    response = await util.web.http_get(url=_url)
 
     if response["content"] is not None:
         pattern = '<link rel="manifest" href="/webrtc/'
@@ -21,7 +21,7 @@ def rtc_version(room):
         )
 
 
-def get_connect_info(room):
+async def get_connect_info(room):
     """ 
     Get the connect token needed for connecting to the WebRTC application.
 
@@ -32,12 +32,12 @@ def get_connect_info(room):
     """
     _url = f"https://tinychat.com/api/v1.0/room/token/{room}"
 
-    response = util.web.http_get(url=_url, json=True)
+    response = await util.web.http_get(url=_url, json=True)
     if response["json"] is not None:
         return response["json"]
 
 
-def user_info(tc_account):
+async def user_info(tc_account):
     """ 
     Finds info for a given tinychat account name.
 
@@ -45,7 +45,7 @@ def user_info(tc_account):
     :return: dict {'username', 'tinychat_id', 'last_active', 'name', 'location', 'biography'} or None on error.
     """
     url = f"https://tinychat.com/api/v1.0/profile?username={tc_account}"
-    response = util.web.http_get(url=url, json=True)
+    response = await util.web.http_get(url=url, json=True)
     if response["json"] is not None:
         if "error" not in response["json"]:
             username = response["json"]["username"]
@@ -67,7 +67,7 @@ def user_info(tc_account):
             return None
 
 
-def spy_info(room):
+async def spy_info(room):
     """
     Finds info for a given room name.
 
@@ -77,7 +77,7 @@ def spy_info(room):
     :return: dict{'mod_count', 'broadcaster_count', 'total_count', list('users')} or {'error'}.
     """
     url = f"https://api.tinychat.com/{room}.json"
-    response = util.web.http_get(url, json=True)
+    response = await util.web.http_get(url, json=True)
     if response["json"] is not None:
         if "error" not in response["json"]:
             mod_count = str(response["json"]["mod_count"])

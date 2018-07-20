@@ -5,16 +5,20 @@ import pinylib
 log = logging.getLogger(__name__)
 
 
-def main():
+async def main():
     room_name = input("Enter room name: ").strip()
     if pinylib.CONFIG.ACCOUNT and pinylib.CONFIG.PASSWORD:
         client = pinylib.TinychatRTCClient(
             room=room_name,
             account=pinylib.CONFIG.ACCOUNT,
             password=pinylib.CONFIG.PASSWORD,
+            solve_captchas=pinylib.CONFIG.SOLVE_CAPTCHAS
         )
     else:
-        client = pinylib.TinychatRTCClient(room=room_name)
+        client = pinylib.TinychatRTCClient(
+            room=room_name,
+            solve_captchas=pinylib.CONFIG.SOLVE_CAPTCHAS
+        )
 
     client.nickname = input("Enter nick name: (optional) ").strip()
     do_login = input("Login? [enter=no] ")
@@ -43,12 +47,7 @@ def main():
             client.account = None
             client.password = None
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(client.connect())
-
-    while not client.is_connected:
-        asyncio.sleep(1)
-    # TODO input... :(
+    await client.connect()
 
 
 if __name__ == "__main__":
@@ -62,4 +61,6 @@ if __name__ == "__main__":
         log.info("Starting pinylib webrtc version: %s" % pinylib.__version__)
     else:
         log.addHandler(logging.NullHandler())
-    main()
+    
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

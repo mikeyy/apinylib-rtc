@@ -2,6 +2,10 @@
 ACCOUNT = ""
 # Password for account
 PASSWORD = ""
+# Solve captchas automatically using Anti-Captcha
+SOLVE_CAPTCHAS = False
+# Anti-Captcha API key
+API_KEY = ""
 # Fallback rtc version.
 FALLBACK_RTC_VERSION = "2.0.22-4"
 # Log chat messages and events.

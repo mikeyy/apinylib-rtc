@@ -50,7 +50,7 @@ def create_random_string(min_length, max_length, upper=False):
     junk = "abcdefghijklmnopqrstuvwxyz0123456789"
     if upper:
         junk += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    return "".join((random.choice(junk) for _ in xrange(randlength)))
+    return "".join((random.choice(junk) for _ in range(randlength)))
 
 
 def convert_to_seconds(duration):
