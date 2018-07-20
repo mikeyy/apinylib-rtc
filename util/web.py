@@ -1,8 +1,10 @@
 """ Contains functions to make http GET and http POST with. version 0.0.6 """
+import asyncio
 import time
 import logging
 import requests
 from requests.utils import quote, unquote
+from functools import partial, wraps
 
 __all__ = ["quote", "unquote"]
 
@@ -11,6 +13,16 @@ log = logging.getLogger(__name__)
 
 #  A session that all requests will use...apparently not.
 __request_session = requests.session()
+
+
+def threaded(func):
+    @wraps(func)
+    async def wrap(*args, **kwargs):
+        loop = asyncio.get_event_loop()
+
+        return await loop.run_in_executor(None, partial(func, *args, **kwargs))
+
+    return wrap
 
 
 def is_cookie_expired(cookie_name):
@@ -70,6 +82,7 @@ def has_cookie(cookie_name):
     return False
 
 
+@threaded
 def http_get(url, **kwargs):
     json = kwargs.get("json", False)
     proxy = kwargs.get("proxy", "")
@@ -131,6 +144,7 @@ def http_get(url, **kwargs):
             )
 
 
+@threaded
 def http_post(post_url, post_data, **kwargs):
     json = kwargs.get("json", False)
     proxy = kwargs.get("proxy", "")
