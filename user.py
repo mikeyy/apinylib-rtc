@@ -5,31 +5,31 @@ class BannedUser:
     """ Class representing a banned user. """
 
     def __init__(self, **kwargs):
-        self.ban_id = kwargs.get('id', 0)
-        self.nick = kwargs.get('nick', '')
-        self.req_id = kwargs.get('req', 0)
-        self.success = kwargs.get('success', False)
-        self.account = kwargs.get('username', '')
-        self.banned_by = kwargs.get('moderator', '')
-        self.reason = kwargs.get('reason', '')
+        self.ban_id = kwargs.get("id", 0)
+        self.nick = kwargs.get("nick", "")
+        self.req_id = kwargs.get("req", 0)
+        self.success = kwargs.get("success", False)
+        self.account = kwargs.get("username", "")
+        self.banned_by = kwargs.get("moderator", "")
+        self.reason = kwargs.get("reason", "")
 
 
 class User:
     """ Class representing a user. """
 
     def __init__(self, **kwargs):
-        self.id = kwargs.get('handle')
-        self.nick = kwargs.get('nick', '')
-        self.account = kwargs.get('username', '')
-        self.giftpoints = kwargs.get('giftpoints', 0)
-        self.featured = kwargs.get('featured', False)
-        self.subscription = kwargs.get('subscription', 0)
-        self.session_id = kwargs.get('session_id', '')
-        self.achievement_url = kwargs.get('achievement_url', '')
-        self.avatar = kwargs.get('avatar', '')
-        self.is_lurker = kwargs.get('lurker', False)
-        self.is_mod = kwargs.get('mod', False)
-        self.is_owner = kwargs.get('owner', False)
+        self.id = kwargs.get("handle")
+        self.nick = kwargs.get("nick", "")
+        self.account = kwargs.get("username", "")
+        self.giftpoints = kwargs.get("giftpoints", 0)
+        self.featured = kwargs.get("featured", False)
+        self.subscription = kwargs.get("subscription", 0)
+        self.session_id = kwargs.get("session_id", "")
+        self.achievement_url = kwargs.get("achievement_url", "")
+        self.avatar = kwargs.get("avatar", "")
+        self.is_lurker = kwargs.get("lurker", False)
+        self.is_mod = kwargs.get("mod", False)
+        self.is_owner = kwargs.get("owner", False)
         self.is_broadcasting = False
         self.is_waiting = False
         #
@@ -146,9 +146,9 @@ class Users:
         :return: The user as User.
         :rtype: User
         """
-        if user_info['handle'] not in self.all:
-            self._users[user_info['handle']] = User(**user_info)
-        return self.all[user_info['handle']]
+        if user_info["handle"] not in self.all:
+            self._users[user_info["handle"]] = User(**user_info)
+        return self.all[user_info["handle"]]
 
     def delete(self, handle_id):
         """
@@ -289,11 +289,13 @@ class Users:
         """
         # if not ban_info['id']:
         #     ban_info['id'] = 0
-        if ban_info['id'] not in self.banlist:
-            self._banned_users[ban_info['id']] = BannedUser(**ban_info)
-        return self.banlist[ban_info['id']]
+        if ban_info["id"] not in self.banlist:
+            self._banned_users[ban_info["id"]] = BannedUser(**ban_info)
+        return self.banlist[ban_info["id"]]
 
-    def delete_banned_user(self, ban_info):  # TODO: Maybe change this to delete by ban id only.
+    def delete_banned_user(
+        self, ban_info
+    ):  # TODO: Maybe change this to delete by ban id only.
         """
         Delete a banned user from the banned user dictionary.
 
@@ -302,9 +304,9 @@ class Users:
         :return: The BannedUser or None if not in the dictionary.
         :rtype: BannedUser | None
         """
-        if ban_info['id'] in self.banlist:
-            banned_user = self.banlist[ban_info['id']]
-            del self._banned_users[ban_info['id']]
+        if ban_info["id"] in self.banlist:
+            banned_user = self.banlist[ban_info["id"]]
+            del self._banned_users[ban_info["id"]]
             return banned_user
         return None
 

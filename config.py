@@ -1,9 +1,9 @@
 # Tinychat account.
-ACCOUNT = ''
+ACCOUNT = ""
 # Password for account
-PASSWORD = ''
+PASSWORD = ""
 # Fallback rtc version.
-FALLBACK_RTC_VERSION = '2.0.22-4'
+FALLBACK_RTC_VERSION = "2.0.22-4"
 # Log chat messages and events.
 CHAT_LOGGING = False
 # Show additional info/errors in console.
@@ -17,6 +17,6 @@ CONSOLE_COLORS = True
 # Time format.
 USE_24HOUR = True
 # The name of pinylib's debug log file.
-DEBUG_FILE_NAME = 'pinylib_debug.log'
+DEBUG_FILE_NAME = "pinylib_debug.log"
 # The path to the config folder.
-CONFIG_PATH = 'rooms/'
+CONFIG_PATH = "rooms/"

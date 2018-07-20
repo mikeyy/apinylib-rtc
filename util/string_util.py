@@ -3,7 +3,7 @@ import random
 from .web import quote, unquote
 
 
-def quote_str(input_str, safe=':,./&+?#=@'):
+def quote_str(input_str, safe=":,./&+?#=@"):
     """
     Quote a string.
     :param input_str: str input string.
@@ -30,7 +30,12 @@ def chunk_string(input_str, length):
     :param length: int the length of each chunk.
     :return: list of input str chunks.
     """
-    return list((input_str[0 + i:length + i] for i in range(0, len(input_str), length)))
+    return list(
+        (
+            input_str[0 + i : length + i]
+            for i in range(0, len(input_str), length)
+        )
+    )
 
 
 def create_random_string(min_length, max_length, upper=False):
@@ -42,10 +47,10 @@ def create_random_string(min_length, max_length, upper=False):
     :return: random str of letters and numbers
     """
     randlength = random.randint(min_length, max_length)
-    junk = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    junk = "abcdefghijklmnopqrstuvwxyz0123456789"
     if upper:
-        junk += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    return ''.join((random.choice(junk) for _ in xrange(randlength)))
+        junk += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    return "".join((random.choice(junk) for _ in xrange(randlength)))
 
 
 def convert_to_seconds(duration):
@@ -54,21 +59,21 @@ def convert_to_seconds(duration):
     :param duration: The ISO 8601 unicode duration str
     :return:  int seconds
     """
-    duration_string = duration.replace('PT', '').upper()
+    duration_string = duration.replace("PT", "").upper()
     seconds = 0
-    number_string = ''
+    number_string = ""
 
     for char in duration_string:
         if char.isnumeric():
             number_string += char
         try:
-            if char == 'H':
+            if char == "H":
                 seconds += (int(number_string) * 60) * 60
-                number_string = ''
-            if char == 'M':
+                number_string = ""
+            if char == "M":
                 seconds += int(number_string) * 60
-                number_string = ''
-            if char == 'S':
+                number_string = ""
+            if char == "S":
                 seconds += int(number_string)
         except ValueError:
             return 0

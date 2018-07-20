@@ -19,56 +19,55 @@ class EventHandler(object):
 
 
 class Handler(EventHandler):
-
     async def ping(self, client, var):
-        await client.send({'tc': 'pong'})
+        await client.send({"tc": "pong"})
 
     async def closed(self, client, var):
-        await client.on_closed(var['error'])
+        await client.on_closed(var["error"])
 
     async def joined(self, client, var):
-        await client.on_joined(var['self'])
-        await client.on_room_info(var['room'])
+        await client.on_joined(var["self"])
+        await client.on_room_info(var["room"])
 
     async def room_settings(self, client, var):
-        await client.on_room_settings(var['room'])
-    
+        await client.on_room_settings(var["room"])
+
     async def userlist(self, client, var):
-        for _user in var['users']:
+        for _user in var["users"]:
             await client.on_userlist(_user)
 
     async def join(self, client, var):
         await client.on_join(var)
-    
+
     async def nick(self, client, var):
-        await client.on_nick(var['handle'], var['nick'])
+        await client.on_nick(var["handle"], var["nick"])
 
     async def quit(self, client, var):
-        await client.on_quit(var['handle'])
+        await client.on_quit(var["handle"])
 
     async def ban(self, client, var):
         await client.on_ban(var)
-        
+
     async def unabn(self, client, var):
         await client.on_unban(var)
 
     async def banlistmsg(self, client, var):
         await client.on_banlist(var)
-    
+
     async def msg(self, client, var):
-        await client.on_msg(var['handle'], var['text'])
+        await client.on_msg(var["handle"], var["text"])
 
     async def pvtmsg(self, client, var):
-        await client.on_pvtmsg(var['handle'], var['text']) 
-   
+        await client.on_pvtmsg(var["handle"], var["text"])
+
     async def publish(self, client, var):
-        await client.on_publish(var['handle'])
+        await client.on_publish(var["handle"])
 
     async def unpublish(self, client, var):
-        await client.on_unpublish(var['handle'])
+        await client.on_unpublish(var["handle"])
 
     async def sysmsg(self, client, var):
-        await client.on_sysmsg(var['text'])
+        await client.on_sysmsg(var["text"])
 
     async def password(self, client, var):
         await client.on_password()
@@ -78,9 +77,9 @@ class Handler(EventHandler):
 
     async def stream_moder_allow(self, client, var):
         await client.on_stream_moder_allow(var)
-    
+
     async def captcha(self, client, var):
-        await client.on_captcha(var['key'])
+        await client.on_captcha(var["key"])
 
     async def yut_playlist(self, client, var):
         await client.on_yut_playlist(var)
@@ -96,13 +95,12 @@ class Handler(EventHandler):
 
     async def iceservers(self, client, var):
         pass
-        
+
     async def stream_connected(self, client, var):
         pass
-        
+
     async def stream_closed(self, client, var):
         pass
-    
+
     async def sdp(self, client, var):
         pass
-

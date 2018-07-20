@@ -7,5 +7,5 @@ methods/functions have been renamed, it should be familiar if you should have us
 I have put in as many comments, as i could with the understanding of the protocol i have so far.
 """
 
-__author__ = 'nortxort'
-__credits__ = 'notnola'
+__author__ = "nortxort"
+__credits__ = "notnola"

@@ -18,9 +18,12 @@ def file_reader(file_path, file_name):
             try:
                 with open(file_path + file_name) as f:
                     for line in f:
-                        file_content.append(line.rstrip('\n'))
+                        file_content.append(line.rstrip("\n"))
             except IOError as ioe:
-                log.error('failed to read file: %s path: %s IOError: %s' % (file_name, file_path, ioe))
+                log.error(
+                    "failed to read file: %s path: %s IOError: %s"
+                    % (file_name, file_path, ioe)
+                )
             finally:
                 return file_content
     return file_content
@@ -37,8 +40,8 @@ def file_writer(file_path, file_name, write_this):
     # maybe return True if we could write and False if not
     if not os.path.exists(file_path):
         os.makedirs(file_path)
-    with open(file_path + file_name, mode='a') as f:
-        f.write(write_this + '\n')
+    with open(file_path + file_name, mode="a") as f:
+        f.write(write_this + "\n")
 
 
 def delete_file(file_path, file_name):
@@ -60,7 +63,7 @@ def delete_file_content(file_path, file_name):
     :param file_path: str the path to the file.
     :param file_name: str the name of the file.
     """
-    open(file_path + file_name, mode='w').close()
+    open(file_path + file_name, mode="w").close()
 
 
 def remove_from_file(file_path, file_name, remove):
