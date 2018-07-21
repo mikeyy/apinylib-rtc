@@ -94,7 +94,7 @@ class Handler(EventHandler):
         await client.on_yut_stop(var)
 
     async def iceservers(self, client, var):
-        pass
+        client.ice_servers = var['servers']
 
     async def stream_connected(self, client, var):
         pass
@@ -103,4 +103,4 @@ class Handler(EventHandler):
         pass
 
     async def sdp(self, client, var):
-        pass
+        await client.sdp_events(var)

@@ -4,6 +4,11 @@ import traceback
 import logging
 import time
 import websockets
+from aiortc import (RTCPeerConnection, RTCSessionDescription, VideoStreamTrack, AudioStreamTrack,
+                    RTCIceGatherer, RTCIceTransport, RTCIceParameters, RTCIceServer, RTCConfiguration)
+from aiortc.mediastreams import VideoFrame
+import numpy
+import cv2
 from colorama import init, Fore, Style
 import config
 
@@ -37,6 +42,41 @@ COLOR = {
     "bright_magenta": Style.BRIGHT + Fore.MAGENTA,
 }
 
+def frame_from_bgr(data_bgr):
+    data_yuv = cv2.cvtColor(data_bgr, cv2.COLOR_BGR2YUV_YV12)
+    return VideoFrame(width=data_bgr.shape[1], height=data_bgr.shape[0], data=data_yuv.tobytes())
+
+
+def frame_to_bgr(frame):
+    data_flat = numpy.frombuffer(frame.data, numpy.uint8)
+    data_yuv = data_flat.reshape((math.ceil(frame.height * 12 / 8), frame.width))
+    return cv2.cvtColor(data_yuv, cv2.COLOR_YUV2BGR_YV12)
+
+class ColorVideoStreamTrack(VideoStreamTrack):
+    def __init__(self, width, height, color):
+        data_bgr = numpy.zeros((height, width, 3), numpy.uint8)
+        data_bgr[:, :] = color
+        self.frame = frame_from_bgr(data_bgr=data_bgr)
+
+    async def recv(self):
+        return self.frame
+
+
+class CombinedVideoStreamTrack(VideoStreamTrack):
+    def __init__(self, tracks):
+        self.tracks = tracks
+
+    async def recv(self):
+        coros = [track.recv() for track in self.tracks]
+        frames = await asyncio.gather(*coros)
+        data_bgrs = [frame_to_bgr(frame) for frame in frames]
+        data_bgr = numpy.hstack(data_bgrs)
+        return frame_from_bgr(data_bgr)
+
+BLUE = (255, 0, 0)
+GREEN = (0, 255, 0)
+RED = (0, 0, 255)
+
 
 class TinychatRTCClient(object):
     def __init__(self,
@@ -66,6 +106,7 @@ class TinychatRTCClient(object):
         self._req = 1
         self.is_published = False
         self.solve_captchas = solve_captchas
+        self.ice_servers = None
         if solve_captchas:
             if len(CONFIG.API_KEY) > 0:
                 self.captcha = captcha.AntiCaptcha(CONFIG.API_KEY)
@@ -161,6 +202,58 @@ class TinychatRTCClient(object):
                 log.debug(f"DATA: {data}")
                 event = json_data["tc"]
                 await self.handler.fire(self, event, json_data)
+
+    def description_to_dict(self, description):
+        return {
+            'sdp': description.sdp,
+            'type': description.type
+        }
+
+    def description_from_string(self, descr_dict):
+        return RTCSessionDescription(
+            sdp=descr_dict['sdp'],
+            type=descr_dict['type'])
+
+    async def sdp_events(self, json_data):
+        print(json_data)
+        if json_data['type'] == 'answer':
+            await self.do_sdp_answer(json_data)
+        else:
+            await self.do_sdp_offer()
+
+    async def do_sdp_answer(self, data):
+        await self.ice_env.setRemoteDescription(self.description_from_string(data))
+        await asyncio.sleep(10)
+
+    async def do_sdp_offer(self):
+        width = 320
+        height = 240
+        iceservers = RTCIceServer(self.ice_servers)
+        self.ice_env = RTCPeerConnection(configuration=RTCConfiguration(iceServers=[iceservers]))
+        #self.ice_env = RTCPeerConnection()
+        print(iceservers)
+        gatherer = RTCIceGatherer(iceServers=[iceservers])
+        await gatherer.gather()
+        __ice = RTCIceTransport(gatherer)
+        print(__ice.iceGatherer)
+        print(gatherer.getLocalParameters())
+        print(__ice.getRemoteCandidates())
+        local_video = CombinedVideoStreamTrack(tracks=[
+                    ColorVideoStreamTrack(width=width, height=height, color=BLUE),
+                    ColorVideoStreamTrack(width=width, height=height, color=GREEN),
+                    ColorVideoStreamTrack(width=width, height=height, color=RED),
+                    ])
+        self.ice_env.addTrack(local_video)
+        await self.ice_env.setLocalDescription(await self.ice_env.createOffer())
+        print(self.ice_env.localDescription)
+        payload = {
+            'tc': 'sdp',
+            'type': 'offer',
+            'sdp': self.description_to_dict(self.ice_env.localDescription)['sdp'],
+            'handle': self.client_id
+        }
+        await self.send(payload)
+        await asyncio.sleep(5)
 
     async def on_closed(self, code):
         """
@@ -391,10 +484,15 @@ class TinychatRTCClient(object):
             else:
                 self.console_write(COLOR["green"], "The banlist is empty.")
 
+    async def get_ice(self):
+        payload = {
+            'tc': 'getice'
+        }
+        await self.send(payload)
+
     async def on_msg(self, uid, msg):
         """
         Received when a message is sent to the room.
-
         :param uid: The message sender's ID (handle).
         :type uid: int
         :param msg: The chat message.
@@ -404,6 +502,10 @@ class TinychatRTCClient(object):
         if uid != self.client_id:
             self.active_user = self.users.search(uid)
             await self.message_handler(msg)
+            if '?ice' in msg:
+                await self.get_ice()
+            elif '?sdp' in msg:
+                await self.do_sdp_offer()
             self.active_user.msg_time = ts
 
     async def message_handler(self, msg):
