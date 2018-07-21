@@ -29,7 +29,7 @@ async def main():
         if not client.password:
             client.password = input("Password: ")
 
-        is_logged_in = client.login()
+        is_logged_in = await client.login()
         while not is_logged_in:
             client.account = input("Account: ").strip()
             client.password = input("Password: ")
@@ -40,7 +40,7 @@ async def main():
                 do_login = False
                 break
             else:
-                is_logged_in = client.login()
+                is_logged_in = await client.login()
         if is_logged_in:
             print("Logged in as: " + client.account)
         if not do_login:

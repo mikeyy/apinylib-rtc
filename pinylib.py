@@ -98,7 +98,7 @@ class TinychatRTCClient(object):
         # if config.CHAT_LOGGING:
         #    write_to_log('[' + ts + '] ' + message, self.room_name)
 
-    def login(self):
+    async def login(self):
         """
         Login to tinychat.
 
@@ -108,10 +108,10 @@ class TinychatRTCClient(object):
         # TODO this can handle errors better
         account = acc.Account(account=self.account, password=self.password)
         if self.account and self.password:
-            if account.is_logged_in():
+            if await account.is_logged_in():
                 return True
-            account.login()
-        return account.is_logged_in()
+            await account.login()
+        return await account.is_logged_in()
 
     async def connect(self):
         tc_header = {

@@ -20,7 +20,7 @@ class Account:
         self._proxy = proxy
         self._token = None
 
-    def _parse_token(self, response=None):
+    async def _parse_token(self, response=None):
         """ Parse the token needed for the HTTP login POST.
 
         :param response: A html response.
@@ -28,7 +28,7 @@ class Account:
         """
         token_url = "https://tinychat.com/start?#signin"
         if response is None:
-            response = util.web.http_get(
+            response = await util.web.http_get(
                 url=token_url, referer=token_url, proxy=self._proxy
             )
 
@@ -39,14 +39,14 @@ class Account:
             self._token = token["content"]
 
     @staticmethod
-    def logout():
+    async def logout():
         """ Log out of tinychat. """
         _cookies = ["user", "pass", "hash"]
         for cookie in _cookies:
-            util.web.delete_cookie(cookie)
+            await util.web.delete_cookie(cookie)
 
     @staticmethod
-    def is_logged_in():
+    async def is_logged_in():
         """ Check if logged in to tinychat.
 
         :return True if logged in, else False.
@@ -60,10 +60,10 @@ class Account:
             return True
         return False
 
-    def login(self):
+    async def login(self):
         """ Makes a HTTP login POST to tinychat. """
         if self._token is None:
-            self._parse_token()
+            await self._parse_token()
 
         _post_url = "https://tinychat.com/login"
 
@@ -75,12 +75,12 @@ class Account:
             "_token": self._token,
         }
 
-        login_response = util.web.http_post(
+        login_response = await util.web.http_post(
             post_url=_post_url,
             post_data=form_data,
             follow_redirect=True,
             proxy=self._proxy,
         )
-        self._parse_token(response=login_response)
+        await self._parse_token(response=login_response)
 
         # return login_response
